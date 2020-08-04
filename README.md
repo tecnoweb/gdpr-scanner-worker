@@ -7,9 +7,9 @@
 
 ### Installation
 
-Install Chromium Headless using:
+Install PHP and Chromium Headless using:
 
-    sudo apt install chromium-browser
+    sudo apt install php-cli chromium-browser
     
 Now test the script using:
 
