@@ -17,6 +17,8 @@ while (true) {
     $salt = $request['salt'];
     $url = escapeshellarg($request['url']);
 
+    $url = preg_replace('|[A-Za-z0-9-._~:/?#[]@!$&\'()*+,;=]|', '', $url);
+
     echo "$url\n";
 
     $lines = explode("\n", trim(shell_exec("php scan.php \"$url\"")));
