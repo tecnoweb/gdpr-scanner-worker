@@ -26,3 +26,5 @@ Output should be:
     ["adservice.google.com",10,"EU","Netherlands","Google LLC"]
 
 From my computer in Amsterdam, that is.
+
+Demo at: https://tqdev.com/gdpr-scanner/
