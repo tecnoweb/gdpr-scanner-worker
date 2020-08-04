@@ -3,11 +3,11 @@
 ### Requirements
 
 - PHP 7
-- Chromium Headless
+- Chromium (running "headless")
 
 ### Installation
 
-Install PHP and Chromium Headless using:
+Install PHP and Chromium using:
 
     sudo apt install php-cli chromium-browser
     
