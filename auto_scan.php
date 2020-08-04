@@ -15,7 +15,7 @@ while (true) {
     }
 
     $salt = $request['salt'];
-    $url = $request['url'];
+    $url = escapeshellarg($request['url']);
 
     echo "$url\n";
 
