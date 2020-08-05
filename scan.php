@@ -5,8 +5,10 @@ $domain = preg_replace('|[^a-zA-Z0-9\.]+|', '', $domain);
 $data = shell_exec('chromium-browser --headless --incognito --log-net-log=/dev/stdout "' . escapeshellcmd($url) . '" 2>/dev/null');
 preg_match_all('|"url":"(https?:)?//([a-zA-Z0-9\-\.]+)|', $data, $matches);
 $domains = [];
-foreach ($matches[2] as $match) {
+$ports = [];
+foreach ($matches[2] as $i => $match) {
     $domains[$match] = true;
+    $ports[$match] = ($matches[1][$i] == 'http:' ? 80 : 443);
 }
 $domains = array_values(array_unique(array_keys($domains)));
 $ips = [];
@@ -38,10 +40,10 @@ for ($i = 0; $i < 3; $i++) {
             SO_RCVTIMEO,
             $connect_timeval
         );
-        $start = microtime(true);
         $time = 0;
-        echo "$domain $ip\n";
-        if ($socket && socket_connect($socket, $ip, 443)) {
+        $port = $ports[$domain];
+        $start = microtime(true);
+        if ($socket && socket_connect($socket, $ip, $port)) {
             $time = round(1000 * (microtime(true) - $start));
             socket_close($socket);
         }
