@@ -16,14 +16,31 @@ foreach ($domains as $domain) {
 }
 $pings = [];
 for ($i = 0; $i < 3; $i++) {
-    foreach ($ips as $ip) {
+    foreach ($ips as $domain => $ip) {
         if (!isset($pings[$ip])) {
             $pings[$ip] = 1000;
         }
         usleep(10000);
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $connect_timeval = array(
+            "sec" => 1,
+            "usec" => 0,
+        );
+        socket_set_option(
+            $socket,
+            SOL_SOCKET,
+            SO_SNDTIMEO,
+            $connect_timeval
+        );
+        socket_set_option(
+            $socket,
+            SOL_SOCKET,
+            SO_RCVTIMEO,
+            $connect_timeval
+        );
         $start = microtime(true);
         $time = 0;
+        echo "$domain $ip\n";
         if ($socket && socket_connect($socket, $ip, 443)) {
             $time = round(1000 * (microtime(true) - $start));
             socket_close($socket);
