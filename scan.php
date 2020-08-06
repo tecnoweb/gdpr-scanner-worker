@@ -2,8 +2,10 @@
 $url = $argv[1];
 $domain = parse_url($url, PHP_URL_HOST);
 $domain = preg_replace('|[^a-zA-Z0-9\.]+|', '', $domain);
-$data = shell_exec('chromium-browser --headless --incognito --log-net-log=/dev/stdout "' . escapeshellcmd($url) . '" 2>/dev/null');
-preg_match_all('|"url":"(https?:)?//([a-zA-Z0-9\-\.]+)|', $data, $matches);
+$pid = shell_exec('nohup chromium-browser --headless --incognito --remote-debugging-port=9222 > /dev/null 2>&1 & echo -n $!');
+$data = shell_exec('chrome-har-capturer -g 1000 ' . escapeshellcmd($url) . ' 2>/dev/null');
+posix_kill($pid, SIGTERM);
+preg_match_all('|"url": ?"(https?:)?//([a-zA-Z0-9\-\.]+)|', $data, $matches);
 $domains = [];
 $ports = [];
 foreach ($matches[2] as $i => $match) {

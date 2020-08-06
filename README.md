@@ -9,7 +9,8 @@
 
 Install PHP and Chromium using:
 
-    sudo apt install php-cli php-curl chromium-browser
+    sudo apt install php-cli php-curl chromium-browser npm
+    sudo npm install -g chrome-har-capturer
     
 Now test the script using:
 
