@@ -45,7 +45,7 @@ for ($i = 0; $i < 3; $i++) {
             SO_RCVTIMEO,
             $connect_timeval
         );
-        $pings[$ip] = $time = 0;
+        $time = 0;
         $port = $ports[$domain];
         $start = microtime(true);
         if ($socket && socket_connect($socket, $ip, $port)) {
