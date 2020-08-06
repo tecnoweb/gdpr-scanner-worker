@@ -12,10 +12,15 @@ foreach ($matches[2] as $i => $match) {
 }
 $domains = array_values(array_unique(array_keys($domains)));
 $ips = [];
-foreach ($domains as $domain) {
+foreach ($domains as $i => $domain) {
     $ip = gethostbyname($domain);
-    $ips[$domain] = $ip;
+    if ($ip == $domain) {
+        $domains[$i] = null;
+    } else {
+        $ips[$domain] = $ip;
+    }
 }
+$domains = array_values(array_filter($domains));
 $pings = [];
 for ($i = 0; $i < 3; $i++) {
     foreach ($ips as $domain => $ip) {
