@@ -45,14 +45,16 @@ for ($i = 0; $i < 3; $i++) {
             SO_RCVTIMEO,
             $connect_timeval
         );
-        $time = 0;
+        $pings[$ip] = $time = 0;
         $port = $ports[$domain];
         $start = microtime(true);
         if ($socket && socket_connect($socket, $ip, $port)) {
             $time = round(1000 * (microtime(true) - $start));
             socket_close($socket);
         }
-        $pings[$ip] = min($pings[$ip], $time);
+        if ($time > 0) {
+            $pings[$ip] = min($pings[$ip], $time);
+        }
     }
 }
 $locations = [];
