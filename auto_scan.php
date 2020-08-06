@@ -18,10 +18,13 @@ while (true) {
     $date = gmdate('Ymd', $time);
     $salt = $request['salt'];
     $url = $request['url'];
-    echo "$url\n";
 
+    echo "$url ... ";
+    flush();
     $escaped = escapeshellarg($url);
     $lines = explode("\n", trim(shell_exec("php scan.php $escaped")));
+    echo ($lines ? "OK\n" : "Failed!\n");
+
     foreach ($lines as $i => $line) {
         $lines[$i] = json_decode($line, true);
     }

@@ -9,7 +9,7 @@
 
 Install PHP and Chromium using:
 
-    sudo apt install php-cli chromium-browser
+    sudo apt install php-cli php-curl chromium-browser
     
 Now test the script using:
 
