@@ -14,7 +14,8 @@ while (true) {
         continue;
     }
 
-    $date = $request['date'];
+    $time = $request['time'];
+    $date = gmdate('Ymd', $time);
     $salt = $request['salt'];
     $url = $request['url'];
     echo "$url\n";
@@ -25,7 +26,7 @@ while (true) {
         $lines[$i] = json_decode($line, true);
     }
 
-    $response = ['date' => $date, 'salt' => $salt, 'url' => $url, 'lines' => $lines];
+    $response = ['time' => $time, 'salt' => $salt, 'url' => $url, 'lines' => $lines];
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "https://tqdev.com/gdpr-scanner/put.php");
