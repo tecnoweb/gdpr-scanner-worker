@@ -55,13 +55,16 @@ for ($i = 0; $i < 3; $i++) {
         $pings[$ip] = min($pings[$ip], $time);
     }
 }
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "http://ip-api.com/batch?fields=continentCode,country,org");
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_values($ips)));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$locations = json_decode(curl_exec($ch), true);
-curl_close($ch);
+$locations = [];
+if ($ips) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://ip-api.com/batch?fields=continentCode,country,org");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_values($ips)));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $locations = json_decode(curl_exec($ch), true);
+    curl_close($ch);
+}
 $lines = [];
 foreach ($domains as $i => $domain) {
     $location = $locations[$i];
