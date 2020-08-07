@@ -5,12 +5,17 @@ $domain = preg_replace('|[^a-zA-Z0-9\.]+|', '', $domain);
 $pid = shell_exec('nohup chromium-browser --headless --incognito --remote-debugging-port=9222 > /dev/null 2>&1 & echo -n $!');
 $data = shell_exec('chrome-har-capturer -g 1000 ' . escapeshellcmd($url) . ' 2>/dev/null');
 posix_kill($pid, SIGTERM);
-preg_match_all('|"url": ?"(https?:)?//([a-zA-Z0-9\-\.]+)|', $data, $matches);
+
+$data = json_decode($data, true);
+
 $domains = [];
 $ports = [];
-foreach ($matches[2] as $i => $match) {
-    $domains[$match] = true;
-    $ports[$match] = ($matches[1][$i] == 'http:' ? 80 : 443);
+foreach ($data['log']['entries'] as $entry) {
+    if (($entry['request']['url'] ?? null) !== null) {
+        $url = parse_url($entry['request']['url']);
+        $domains[$url['host']] = $url['host'];
+        $ports[$url['host']] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
+    }
 }
 $domains = array_values(array_unique(array_keys($domains)));
 $ips = [];
