@@ -8,11 +8,18 @@ posix_kill($pid, SIGTERM);
 $data = json_decode($data, true);
 $domains = [];
 $ports = [];
+$anonimyzeFlags = [];
 foreach ($data['log']['entries'] as $entry) {
     if (($entry['request']['url'] ?? null) !== null) {
         $url = parse_url($entry['request']['url']);
         $domains[$url['host']] = $url['host'];
         $ports[$url['host']] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
+
+        if ($url['host'] === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
+            parse_str($entry['request']['postData']['text'] ?? '', $params);
+            $params = array_merge($params, array_combine(array_column($entry['request']['queryString'] ?? [], 'name'), array_column($entry['request']['queryString'] ?? [], 'value')));
+            $anonimyzeFlags[$url['host']] = ($anonimyzeFlags[$url['host']] ?? false) || (($params['aip'] ?? '') === '1');
+        }
     }
 }
 $domains = array_values(array_unique(array_keys($domains)));
@@ -80,7 +87,8 @@ foreach ($domains as $i => $domain) {
     $continent = $location['continentCode'] == 'EU' ? 'EU' : '';
     $country = $location['country'];
     $organization = $location['org'];
-    $line = ['domain' => $domain, 'ping' => $ping, 'continent' => $continent, 'country' => $country, 'organization' => $organization];
+    $anonimyzeFlag = $anonimyzeFlags[$domain] ?? null;
+    $line = compact('domain', 'ping', 'continent', 'country', 'organization', 'anonimyzeFlag');
     $lines[] = $line;
 }
 
