@@ -8,17 +8,28 @@ posix_kill($pid, SIGTERM);
 $data = json_decode($data, true);
 $domains = [];
 $ports = [];
-$anonimyzeFlags = [];
+$flags = [];
 foreach ($data['log']['entries'] as $entry) {
     if (($entry['request']['url'] ?? null) !== null) {
         $url = parse_url($entry['request']['url']);
-        $domains[$url['host']] = $url['host'];
-        $ports[$url['host']] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
+        $domain = $url['host'];
+        $domains[$domain] = $domain;
+        $ports[$domain] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
+        $flags[$domain] = $flags[$domain] ?? [];
 
-        if ($url['host'] === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
-            parse_str($entry['request']['postData']['text'] ?? '', $params);
-            $params = array_merge($params, array_combine(array_column($entry['request']['queryString'] ?? [], 'name'), array_column($entry['request']['queryString'] ?? [], 'value')));
-            $anonimyzeFlags[$url['host']] = ($anonimyzeFlags[$url['host']] ?? false) || (($params['aip'] ?? '') === '1');
+        // google analytics
+        if ($domain === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
+            parse_str($entry['request']['postData']['text'] ?? '', $postParams);
+            $queryString = $entry['request']['queryString'] ?? [];
+            $getParams = array_combine(array_column($queryString, 'name'), array_column($queryString, 'value'));
+            $params = array_merge($postParams, $getParams);
+            $aipSet = ($params['aip'] ?? '') === '1';
+            $flags[$domain][$aipSet ? 'ga_aip' : 'ga_no_aip'] = true;
+        }
+
+        // google fonts
+        if ($domain === 'fonts.googleapis.com') {
+            $flags[$domain]['g_fonts'] = true;
         }
     }
 }
@@ -87,11 +98,11 @@ foreach ($domains as $i => $domain) {
     $continent = $location['continentCode'] == 'EU' ? 'EU' : '';
     $country = $location['country'];
     $organization = $location['org'];
-    $anonimyzeFlag = $anonimyzeFlags[$domain] ?? null;
-    $line = compact('domain', 'ping', 'continent', 'country', 'organization', 'anonimyzeFlag');
+    $flag = array_keys($flags[$domain]);
+    $line = [$domain, $flag, $ping, $continent, $country, $organization];
     $lines[] = $line;
 }
 
 foreach ($lines as $line) {
-    echo json_encode(array_values($line)) . "\n";
+    echo json_encode($line) . "\n";
 }
