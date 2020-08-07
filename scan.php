@@ -5,9 +5,7 @@ $domain = preg_replace('|[^a-zA-Z0-9\.]+|', '', $domain);
 $pid = shell_exec('nohup chromium-browser --headless --incognito --remote-debugging-port=9222 > /dev/null 2>&1 & echo -n $!');
 $data = shell_exec('chrome-har-capturer -g 1000 ' . escapeshellcmd($url) . ' 2>/dev/null');
 posix_kill($pid, SIGTERM);
-
 $data = json_decode($data, true);
-
 $domains = [];
 $ports = [];
 foreach ($data['log']['entries'] as $entry) {
