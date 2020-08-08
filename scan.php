@@ -43,6 +43,16 @@ foreach ($data['log']['entries'] as $entry) {
             $flags[$domain]['g_fonts'] = true;
         }
 
+        // google doubleclick ads
+        if ($domain === 'stats.g.doubleclick.net') {
+            $flags[$domain]['g_dc_ads'] = true;
+        }
+
+        // facebook connect
+        if ($domain === 'connect.facebook.net') {
+            $flags[$domain]['fb_connect'] = true;
+        }
+
         // chartbeat analytics 
         if ($domain === 'ping.chartbeat.net') {
             $flags[$domain]['chartbeat'] = true;
