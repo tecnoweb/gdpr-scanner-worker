@@ -43,7 +43,7 @@ foreach ($data['log']['entries'] as $entry) {
             $flags[$domain]['chartbeat'] = true;
         }
 
-        if ($domain === 'bam.nr-data.net' || $domain === 'js-agent.newrelic.com') {
+        if ($domain === 'bam.nr-data.net') {
             $flags[$domain]['nr_in_us'] = true;
         }
     }
