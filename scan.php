@@ -42,6 +42,10 @@ foreach ($data['log']['entries'] as $entry) {
         if ($domain === 'ping.chartbeat.net') {
             $flags[$domain]['chartbeat'] = true;
         }
+
+        if ($domain === 'bam.nr-data.net' || $domain === 'js-agent.newrelic.com') {
+            $flags[$domain]['nr_in_us'] = true;
+        }
     }
 }
 $domains = array_values(array_unique(array_keys($domains)));
