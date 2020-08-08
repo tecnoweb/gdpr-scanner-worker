@@ -27,6 +27,8 @@ foreach ($data['log']['entries'] as $entry) {
 
             // check for aip flag
             if (($get['aip'] ?? false) || ($post['aip'] ?? false)) {
+                $flags[$domain]['ga_aip'] = true;
+            } else {
                 $flags[$domain]['ga_no_aip'] = true;
             }
         }
