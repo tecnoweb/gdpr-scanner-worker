@@ -17,13 +17,15 @@ foreach ($data['log']['entries'] as $entry) {
         $ports[$domain] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
         $flags[$domain] = $flags[$domain] ?? [];
 
-        // parse get and post data
-        $query = $entry['request']['queryString'] ?? [];
-        $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
-        parse_str($entry['request']['postData']['text'] ?? '', $post);
-
         // google analytics
         if ($domain === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
+
+            // parse get and post data
+            $query = $entry['request']['queryString'] ?? [];
+            $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
+            parse_str($entry['request']['postData']['text'] ?? '', $post);
+
+            // check for aip flag
             if (($get['aip'] ?? false) || ($post['aip'] ?? false)) {
                 $flags[$domain]['ga_no_aip'] = true;
             }
