@@ -23,18 +23,19 @@ foreach ($data['log']['entries'] as $entry) {
         }
 
         // google analytics
-        if ($domain === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
+        if (in_array($domain, ['ssl.google-analytics.com', 'www.google-analytics.com'])) {
+            if (strpos($url['path'], '/collect') !== false)
+                // parse get and post data
+                $query = $entry['request']['queryString'] ?? [];
+                $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
+                parse_str($entry['request']['postData']['text'] ?? '', $post);
 
-            // parse get and post data
-            $query = $entry['request']['queryString'] ?? [];
-            $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
-            parse_str($entry['request']['postData']['text'] ?? '', $post);
-
-            // check for aip flag
-            if (($get['aip'] ?? false) || ($post['aip'] ?? false)) {
-                $flags[$domain]['ga_aip'] = true;
-            } else {
-                $flags[$domain]['ga_no_aip'] = true;
+                // check for aip flag
+                if (($get['aip'] ?? false) || ($post['aip'] ?? false)) {
+                    $flags[$domain]['ga_aip'] = true;
+                } else {
+                    $flags[$domain]['ga_no_aip'] = true;
+                }
             }
         }
 
