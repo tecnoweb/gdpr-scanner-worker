@@ -4,6 +4,7 @@
 
 - PHP 7
 - Chromium (running "headless")
+- NPM package "chrome-har-capturer"
 
 ### Installation
 
@@ -18,13 +19,13 @@ Now test the script using:
     
 Output should be:
 
-    ["google.com",10,"EU","Netherlands","Google LLC"]
-    ["www.google.com",10,"EU","Netherlands","Google LLC"]
-    ["ssl.gstatic.com",10,"","United States","Google LLC"]
-    ["www.gstatic.com",10,"","United States","Google LLC"]
-    ["apis.google.com",10,"EU","Netherlands","Google LLC"]
-    ["ogs.google.com",10,"","United States","Google LLC"]
-    ["adservice.google.com",10,"EU","Netherlands","Google LLC"]
+    ["google.com",[],10,"EU","Netherlands","Google LLC"]
+    ["www.google.com",[],10,"EU","Netherlands","Google LLC"]
+    ["ssl.gstatic.com",[],10,"","United States","Google LLC"]
+    ["www.gstatic.com",[],10,"","United States","Google LLC"]
+    ["apis.google.com",[],10,"EU","Netherlands","Google LLC"]
+    ["ogs.google.com",[],10,"","United States","Google LLC"]
+    ["adservice.google.com",[],10,"EU","Netherlands","Google LLC"]
 
 From my computer in Amsterdam, that is.
 
