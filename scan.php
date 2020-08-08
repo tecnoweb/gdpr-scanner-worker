@@ -23,7 +23,7 @@ foreach ($data['log']['entries'] as $entry) {
         }
 
         // google analytics
-        if (in_array($domain, ['ssl.google-analytics.com', 'www.google-analytics.com'])) {
+        if (in_array($domain, ['www.google-analytics.com'])) {
             if (strpos($url['path'], '/collect') !== false) {
                 // parse get and post data
                 $query = $entry['request']['queryString'] ?? [];
