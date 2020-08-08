@@ -24,7 +24,7 @@ foreach ($data['log']['entries'] as $entry) {
 
         // google analytics
         if (in_array($domain, ['ssl.google-analytics.com', 'www.google-analytics.com'])) {
-            if (strpos($url['path'], '/collect') !== false)
+            if (strpos($url['path'], '/collect') !== false) {
                 // parse get and post data
                 $query = $entry['request']['queryString'] ?? [];
                 $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
