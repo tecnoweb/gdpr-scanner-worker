@@ -37,6 +37,11 @@ foreach ($data['log']['entries'] as $entry) {
         if ($domain === 'fonts.googleapis.com') {
             $flags[$domain]['g_fonts'] = true;
         }
+
+        // chartbeat analytics 
+        if ($domain === 'ping.chartbeat.net') {
+            $flags[$domain]['chartbeat'] = true;
+        }
     }
 }
 $domains = array_values(array_unique(array_keys($domains)));
