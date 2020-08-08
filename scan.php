@@ -17,14 +17,16 @@ foreach ($data['log']['entries'] as $entry) {
         $ports[$domain] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
         $flags[$domain] = $flags[$domain] ?? [];
 
+        // parse get and post data
+        $query = $entry['request']['queryString'] ?? [];
+        $get = array_combine(array_column($query, 'name'), array_column($query, 'value'));
+        parse_str($entry['request']['postData']['text'] ?? '', $post);
+
         // google analytics
         if ($domain === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
-            parse_str($entry['request']['postData']['text'] ?? '', $postParams);
-            $queryString = $entry['request']['queryString'] ?? [];
-            $getParams = array_combine(array_column($queryString, 'name'), array_column($queryString, 'value'));
-            $params = array_merge($postParams, $getParams);
-            $aipSet = ($params['aip'] ?? '') === '1';
-            $flags[$domain][$aipSet ? 'ga_aip' : 'ga_no_aip'] = true;
+            if (($get['aip'] ?? false) || ($post['aip'] ?? false)) {
+                $flags[$domain]['ga_no_aip'] = true;
+            }
         }
 
         // google fonts
