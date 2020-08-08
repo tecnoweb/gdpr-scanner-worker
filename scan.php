@@ -17,6 +17,11 @@ foreach ($data['log']['entries'] as $entry) {
         $ports[$domain] = $url['port'] ?? ($url['scheme'] === 'http' ? 80 : 443);
         $flags[$domain] = $flags[$domain] ?? [];
 
+        // no SSL
+        if ($url['scheme'] === 'http') {
+            $flags[$domain]['no_ssl'] = true;
+        }
+
         // google analytics
         if ($domain === 'www.google-analytics.com' && strpos($url['path'], '/collect') !== false) {
 
@@ -43,6 +48,7 @@ foreach ($data['log']['entries'] as $entry) {
             $flags[$domain]['chartbeat'] = true;
         }
 
+        // new relic in the US
         if ($domain === 'bam.nr-data.net') {
             $flags[$domain]['nr_in_us'] = true;
         }
