@@ -54,7 +54,7 @@ foreach ($data['log']['entries'] as $entry) {
             $flags[$domain]['fb_connect'] = true;
         }
 
-        // chartbeat analytics 
+        // chartbeat analytics
         if ($domain === 'ping.chartbeat.net') {
             $flags[$domain]['chartbeat'] = true;
         }
@@ -67,12 +67,19 @@ foreach ($data['log']['entries'] as $entry) {
 }
 $domains = array_values(array_unique(array_keys($domains)));
 $ips = [];
+$hostnames = [];
 foreach ($domains as $i => $domain) {
     $ip = gethostbyname($domain);
     if ($ip == $domain) {
         $domains[$i] = null;
     } else {
         $ips[$domain] = $ip;
+        $hostname = gethostbyaddr($ip);
+        if ($ip == $hostname) {
+            $hostnames[$domain] = '';
+        } else {
+            $hostnames[$domain] = $hostname;
+        }
     }
 }
 $domains = array_values(array_filter($domains));
@@ -127,11 +134,12 @@ foreach ($domains as $i => $domain) {
     $location = $locations[$i];
     $ip = $ips[$domain];
     $ping = $pings[$ip];
+    $hostname = $hostnames[$domain];
     $continent = $location['continentCode'] == 'EU' ? 'EU' : '';
     $country = $location['country'];
     $organization = $location['org'];
     $flag = array_keys($flags[$domain]);
-    $line = [$domain, $flag, $ping, $continent, $country, $organization];
+    $line = [$domain, $flag, $ping, $hostname, $continent, $country, $organization];
     $lines[] = $line;
 }
 
