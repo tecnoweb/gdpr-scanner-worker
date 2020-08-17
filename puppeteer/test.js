@@ -7,7 +7,7 @@ const util = require('util');
 const qs = require('qs');
 const dns = require('dns');
 
-const getData = async (url, timeout) => {
+const getBrowserData = async (url, timeout) => {
   const browser = await puppeteer.launch();
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage();
@@ -114,10 +114,7 @@ const getFlags = (entries) => {
   return flags;
 }
 
-(async () => {
-  data = await getData('https://www.nu.nl', 2000);
-  const entries = data.har.log.entries.filter(e => e.request.url);
-  flags = getFlags(entries);
+const getDnsData = async (flags) => {
 
   const domains = Object.keys(flags);
 
@@ -144,6 +141,15 @@ const getFlags = (entries) => {
       }
     }
   }
-  console.log(times);
 
+  return { ips: ips, hostnames: reverses, pings: times };
+}
+
+
+(async () => {
+  browserData = await getBrowserData('https://www.nu.nl', 2000);
+  const entries = browserData.har.log.entries.filter(e => e.request.url);
+  const flags = getFlags(entries);
+  const dnsData = await getDnsData(flags);
+  console.log(dnsData);
 })()
