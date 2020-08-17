@@ -5,6 +5,7 @@ const tcpp = require('tcp-ping');
 const util = require('util');
 const qs = require('qs');
 const dns = require('dns');
+const fetch = require('node-fetch');
 
 const getBrowserData = async (url, timeout) => {
   const browser = await puppeteer.launch();
@@ -149,11 +150,32 @@ const getDnsData = async (flags) => {
   return { ips: ips, hostnames: reverses, pings: times };
 }
 
+const getLocationData = async (ips) => {
+  const results = await fetch('http://ip-api.com/batch?fields=continentCode,country,org', {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    body: JSON.stringify(Object.values(ips))
+  }).then(res => res.json());
+  return Object.keys(ips).reduce((acc, domain, i) => (acc[domain] = results[i], acc), {});
+}
+
 
 (async () => {
-  browserData = await getBrowserData('https://www.nytimes.com/', 2000);
+  browserData = await getBrowserData('https://www.nu.nl/', 2000);
   const entries = browserData.har.log.entries.filter(e => e.request.url);
   const flags = getFlags(entries);
   const dnsData = await getDnsData(flags);
-  console.log(browserData);
+  const locations = await getLocationData(dnsData.ips);
+  for (domain of Object.keys(flags)) {
+    const flag = Object.keys(flags[domain]);
+    const ping = Math.round(dnsData.pings[domain]);
+    const hostname = dnsData.hostnames[domain];
+    const contintent = locations[domain].continentCode == 'EU' ? 'EU' : '';
+    const country = locations[domain].country;
+    const organization = locations[domain].org;
+    console.log(JSON.stringify([domain, flag, ping, hostname, contintent, country, organization]));
+  }
 })();
