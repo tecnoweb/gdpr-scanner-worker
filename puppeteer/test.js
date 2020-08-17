@@ -5,6 +5,7 @@ const fs = require('fs').promises;
 const tcpp = require('tcp-ping');
 const util = require('util');
 const qs = require('qs');
+const dns = require('dns');
 
 const getData = async (url, timeout) => {
   const browser = await puppeteer.launch();
@@ -118,10 +119,31 @@ const getFlags = (entries) => {
   const entries = data.har.log.entries.filter(e => e.request.url);
   flags = getFlags(entries);
 
+  const domains = Object.keys(flags);
+
+  const nslookup = util.promisify(dns.lookup);
+  const lookups = await Promise.all(domains.map((domain) => nslookup(domain)));
+  const ips = domains.reduce((acc, domain, i) => (acc[domain] = lookups[i].address, acc), {})
+
+  const rlookup = util.promisify(dns.reverse);
+  const rlookups = await Promise.all(domains.map((domain) => rlookup(ips[domain]).catch(_ => [''])));
+  const reverses = domains.reduce((acc, domain, i) => (acc[domain] = rlookups[i][0], acc), {})
+
   const ping = util.promisify(tcpp.ping);
-  const result = await ping({
-    address: '94.130.129.123', port: 443,
-    attempts: 1
-  });
-  console.log(flags);
+  const times = {};
+  for (var i = 0; i < 3; i++) {
+    for (const domain of domains) {
+      await new Promise(r => setTimeout(r, 100));
+      time = await ping({
+        address: ips[domain], port: flags[domain]['no_ssl'] ? 80 : 443, attempts: 1
+      });
+      if (domain in times) {
+        times[domain] = Math.min(times[domain], time.min);
+      } else {
+        times[domain] = time.min;
+      }
+    }
+  }
+  console.log(times);
+
 })()
