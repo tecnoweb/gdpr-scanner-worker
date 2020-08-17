@@ -68,8 +68,7 @@ const sortUnique = (a) => a.sort().filter(function (elem, index, arr) {
   return index == arr.length - 1 || arr[index + 1] != elem
 });
 
-const getFlags = (har) => {
-  const entries = har.log.entries.filter(e => e.request.url);
+const getFlags = (entries) => {
 
   // get all domains
   const domains = sortUnique(entries.map(e => new URL(e.request.url).host));
@@ -101,7 +100,8 @@ const getFlags = (har) => {
 
 (async () => {
   data = await getData('https://www.nu.nl', 2000);
-  flags = getFlags(data.har);
+  const entries = data.har.log.entries.filter(e => e.request.url);
+  flags = getFlags(entries);
 
   const ping = util.promisify(tcpp.ping);
   const result = await ping({
