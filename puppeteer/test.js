@@ -40,17 +40,15 @@ const getBrowserData = async (url, timeout) => {
       request.onsuccess = _ => resolve(request.result);
     });
 
-    for (i = 0; i < databases.length; i++) {
-      const db = await connect(databases[i])
+    for (database of databases) {
+      const db = await connect(database)
       const dbName = db.name;
       result[dbName] = {}
-      for (j = 0; j < db.objectStoreNames.length; j++) {
-        const objectStoreName = db.objectStoreNames[j];
+      for (objectStoreName of objectStoreNames) {
         result[dbName][objectStoreName] = []
         const values = await getAll(db, objectStoreName);
         result[dbName][objectStoreName] = values;
       }
-
     }
     return result;
   });
@@ -82,12 +80,12 @@ const getFlags = (entries) => {
     const u = new URL(e.request.url);
     return (u.host == gaDomain) && (u.pathname.indexOf('/collect') != -1)
   });
-  gaEntries.forEach((e) => {
+  for (e of gaEntries) {
     const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
     const post = e.request.postData ? qs.parse(e.request.postData.text) : {};
-    const aip = get['aip'] || post['aip'];
+    const aip = 'aip' in get || 'aip' in post;
     flags[gaDomain][aip ? 'ga_aip' : 'ga_no_aip'] = true;
-  });
+  }
 
   // set domain flags
   const domainFlags = {
