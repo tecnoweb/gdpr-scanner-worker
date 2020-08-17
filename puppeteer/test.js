@@ -20,11 +20,24 @@ const getBrowserData = async (url, timeout) => {
 
   data.har = await recording.stop();
 
-  data.cookies = await page._client.send('Network.getAllCookies')
+  const cookies = await page._client.send('Network.getAllCookies');
+  data.cookies = cookies.cookies.filter((cookie) => cookie.session == false);
 
-  data.localStorage = await page.evaluate(() => Object.assign({}, window.localStorage))
+  data.localStorage = await page.evaluate(() => Object.assign({}, window.localStorage));
 
-  data.sessionStorage = await page.evaluate(() => Object.assign({}, window.sessionStorage))
+  data.caches = await page.evaluate(async () => {
+    const result = {};
+    const cacheNames = await caches.keys();
+    for (const name of cacheNames) {
+      result[name] = {};
+      const cache = await caches.open(name);
+      for (const request of await cache.keys()) {
+        response = await cache.match(request);
+        result[name][request.url] = response;
+      }
+    }
+    return result;
+  });
 
   data.indexedDB = await page.evaluate(async () => {
     const result = {};
@@ -41,11 +54,11 @@ const getBrowserData = async (url, timeout) => {
     });
 
     for (database of databases) {
-      const db = await connect(database)
+      const db = await connect(database);
       const dbName = db.name;
-      result[dbName] = {}
+      result[dbName] = {};
       for (objectStoreName of db.objectStoreNames) {
-        result[dbName][objectStoreName] = []
+        result[dbName][objectStoreName] = [];
         const values = await getAll(db, objectStoreName);
         result[dbName][objectStoreName] = values;
       }
@@ -58,7 +71,7 @@ const getBrowserData = async (url, timeout) => {
 };
 
 const sortUnique = (a) => a.sort().filter(function (elem, index, arr) {
-  return index == arr.length - 1 || arr[index + 1] != elem
+  return index == arr.length - 1 || arr[index + 1] != elem;
 });
 
 const getFlags = (entries) => {
@@ -78,7 +91,7 @@ const getFlags = (entries) => {
   const gaDomain = 'www.google-analytics.com';
   const gaEntries = entries.filter(e => {
     const u = new URL(e.request.url);
-    return (u.host == gaDomain) && (u.pathname.indexOf('/collect') != -1)
+    return (u.host == gaDomain) && (u.pathname.indexOf('/collect') != -1);
   });
   for (e of gaEntries) {
     const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
@@ -94,7 +107,7 @@ const getFlags = (entries) => {
     'connect.facebook.net': 'fb_connect',
     'ping.chartbeat.net': 'chartbeat',
     'bam.nr-data.net': 'nr_in_us'
-  }
+  };
   for (const domain of Object.keys(flags)) {
     if (domain in domainFlags) {
       const flag = domainFlags[domain];
@@ -111,11 +124,11 @@ const getDnsData = async (flags) => {
 
   const nslookup = util.promisify(dns.lookup);
   const lookups = await Promise.all(domains.map((domain) => nslookup(domain)));
-  const ips = domains.reduce((acc, domain, i) => (acc[domain] = lookups[i].address, acc), {})
+  const ips = domains.reduce((acc, domain, i) => (acc[domain] = lookups[i].address, acc), {});
 
   const rlookup = util.promisify(dns.reverse);
   const rlookups = await Promise.all(domains.map((domain) => rlookup(ips[domain]).catch(_ => [''])));
-  const reverses = domains.reduce((acc, domain, i) => (acc[domain] = rlookups[i][0], acc), {})
+  const reverses = domains.reduce((acc, domain, i) => (acc[domain] = rlookups[i][0], acc), {});
 
   const ping = util.promisify(tcpp.ping);
   const times = {};
@@ -142,5 +155,5 @@ const getDnsData = async (flags) => {
   const entries = browserData.har.log.entries.filter(e => e.request.url);
   const flags = getFlags(entries);
   const dnsData = await getDnsData(flags);
-  console.log(dnsData);
-})()
+  console.log(browserData);
+})();
