@@ -1,7 +1,6 @@
 // npm i puppeteer puppeteer-har tcp-ping
 const puppeteer = require('puppeteer');
 const PuppeteerHar = require('puppeteer-har');
-const fs = require('fs').promises;
 const tcpp = require('tcp-ping');
 const util = require('util');
 const qs = require('qs');
@@ -20,16 +19,12 @@ const getBrowserData = async (url, timeout) => {
   await page.waitFor(timeout);
 
   data.har = await recording.stop();
-  //await fs.writeFile("har.json", JSON.stringify(data.har), "utf8")
 
   data.cookies = await page._client.send('Network.getAllCookies')
-  //await fs.writeFile("cookies.json", JSON.stringify(data.cookies), "utf8")
 
   data.localStorage = await page.evaluate(() => Object.assign({}, window.localStorage))
-  //await fs.writeFile("localStorage.json", JSON.stringify(data.localStorage), "utf8")
 
   data.sessionStorage = await page.evaluate(() => Object.assign({}, window.sessionStorage))
-  //await fs.writeFile("sessionStorage.json", JSON.stringify(data.sessionStorage), "utf8")
 
   data.indexedDB = await page.evaluate(async () => {
     const result = {};
@@ -59,7 +54,6 @@ const getBrowserData = async (url, timeout) => {
     }
     return result;
   });
-  //await fs.writeFile("indexedDB.json", JSON.stringify(data.indexedDB), "utf8")
   await browser.close();
 
   return data;
@@ -75,7 +69,6 @@ const getFlags = (entries) => {
   const domains = sortUnique(entries.map(e => new URL(e.request.url).host));
 
   // initialize flags
-  //const flags = Object.fromEntries(domains.map(domain => [domain, {}]))
   const flags = domains.reduce((flags, domain) => { flags[domain] = {}; return flags; }, {});
 
   // set no_ssl 
