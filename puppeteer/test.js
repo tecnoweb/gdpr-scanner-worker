@@ -95,6 +95,21 @@ const getFlags = (entries) => {
     flags[gaDomain][aip ? 'ga_aip' : 'ga_no_aip'] = true;
   });
 
+  // set domain flags
+  const domainFlags = {
+    'fonts.googleapis.com': 'g_fonts',
+    'stats.g.doubleclick.net': 'g_dc_ads',
+    'connect.facebook.net': 'fb_connect',
+    'ping.chartbeat.net': 'chartbeat',
+    'bam.nr-data.net': 'nr_in_us'
+  }
+  Object.keys(flags).forEach((domain) => {
+    if (domain in domainFlags) {
+      const flag = domainFlags[domain];
+      flags[domain][flag] = true;
+    }
+  });
+
   return flags;
 }
 
