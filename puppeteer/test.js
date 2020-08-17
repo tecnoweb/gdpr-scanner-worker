@@ -44,7 +44,7 @@ const getBrowserData = async (url, timeout) => {
       const db = await connect(database)
       const dbName = db.name;
       result[dbName] = {}
-      for (objectStoreName of objectStoreNames) {
+      for (objectStoreName of db.objectStoreNames) {
         result[dbName][objectStoreName] = []
         const values = await getAll(db, objectStoreName);
         result[dbName][objectStoreName] = values;
