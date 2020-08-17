@@ -124,7 +124,7 @@ const getDnsData = async (flags) => {
   for (var i = 0; i < 3; i++) {
     for (const domain of domains) {
       await new Promise(r => setTimeout(r, 100));
-      time = await ping({
+      const time = await ping({
         address: ips[domain], port: flags[domain]['no_ssl'] ? 80 : 443, attempts: 1
       });
       if (domain in times) {
