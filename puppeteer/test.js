@@ -97,12 +97,12 @@ const getFlags = (entries) => {
     'ping.chartbeat.net': 'chartbeat',
     'bam.nr-data.net': 'nr_in_us'
   }
-  Object.keys(flags).forEach((domain) => {
+  for (const domain of Object.keys(flags)) {
     if (domain in domainFlags) {
       const flag = domainFlags[domain];
       flags[domain][flag] = true;
     }
-  });
+  }
 
   return flags;
 }
