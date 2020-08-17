@@ -151,7 +151,7 @@ const getDnsData = async (flags) => {
 
 
 (async () => {
-  browserData = await getBrowserData('https://www.nu.nl', 2000);
+  browserData = await getBrowserData('https://www.nytimes.com/', 2000);
   const entries = browserData.har.log.entries.filter(e => e.request.url);
   const flags = getFlags(entries);
   const dnsData = await getDnsData(flags);
