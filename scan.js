@@ -183,7 +183,7 @@ const getData = async (url) => {
   }
   for (cookie of browserData.cookies.cookies) {
     if (!('sameSite' in cookie)) {
-      cookies.sameSite = '';
+      cookie.sameSite = '';
     }
     data.cookies.push(cookie);
   }
