@@ -29,10 +29,10 @@ const getBrowserData = async (url, timeout) => {
 
   data.caches = await page.evaluate(async () => {
     const result = {};
-    const cacheNames = await caches.keys();
+    const cacheNames = await window.caches.keys();
     for (const name of cacheNames) {
       result[name] = {};
-      const cache = await caches.open(name);
+      const cache = await window.caches.open(name);
       for (const request of await cache.keys()) {
         response = await cache.match(request);
         result[name][request.url] = response;
