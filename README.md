@@ -2,10 +2,14 @@
 
 ### Requirements
 
-- NodeJS
+- NodeJS v14
 - Puppeteer
 
 ### Installation
+
+Install NodeJS v14:
+
+https://github.com/nodesource/distributions
 
 Install NodeJS dependencies
 
