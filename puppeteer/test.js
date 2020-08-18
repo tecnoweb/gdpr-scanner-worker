@@ -1,4 +1,4 @@
-// npm i puppeteer puppeteer-har tcp-ping
+// npm i puppeteer puppeteer-har tcp-ping qs dns node-fetch
 const puppeteer = require('puppeteer');
 const PuppeteerHar = require('puppeteer-har');
 const tcpp = require('tcp-ping');
@@ -21,10 +21,11 @@ const getBrowserData = async (url, timeout) => {
 
   data.har = await recording.stop();
 
-  const cookies = await page._client.send('Network.getAllCookies');
-  data.cookies = cookies.cookies.filter((cookie) => cookie.session == false);
+  data.cookies = await page._client.send('Network.getAllCookies');
 
   data.localStorage = await page.evaluate(() => Object.assign({}, window.localStorage));
+
+  data.sessionStorage = await page.evaluate(() => Object.assign({}, window.sessionStorage));
 
   data.caches = await page.evaluate(async () => {
     const result = {};
@@ -164,18 +165,31 @@ const getLocationData = async (ips) => {
 
 
 (async () => {
+
+
+
   browserData = await getBrowserData('https://www.nu.nl/', 2000);
   const entries = browserData.har.log.entries.filter(e => e.request.url);
   const flags = getFlags(entries);
   const dnsData = await getDnsData(flags);
   const locations = await getLocationData(dnsData.ips);
+  console.log("DOMAINS")
   for (domain of Object.keys(flags)) {
-    const flag = Object.keys(flags[domain]);
-    const ping = Math.round(dnsData.pings[domain]);
-    const hostname = dnsData.hostnames[domain];
-    const contintent = locations[domain].continentCode == 'EU' ? 'EU' : '';
-    const country = locations[domain].country;
-    const organization = locations[domain].org;
-    console.log(JSON.stringify([domain, flag, ping, hostname, contintent, country, organization]));
+    const result = { domain: domain }
+    result.flag = Object.keys(flags[domain]);
+    result.ping = Math.round(dnsData.pings[domain]);
+    result.hostname = dnsData.hostnames[domain];
+    result.contintent = locations[domain].continentCode == 'EU' ? 'EU' : '';
+    result.country = locations[domain].country;
+    result.organization = locations[domain].org;
+    console.log(JSON.stringify(result));
+  }
+  console.log("COOKIES")
+  for (cookie of browserData.cookies.cookies) {
+    console.log(JSON.stringify(Object.keys(cookie)));
+  }
+  console.log("LOCAL STORAGE")
+  for (key of Object.keys(browserData.localStorage)) {
+    console.log(JSON.stringify({ key: key, value: browserData.localStorage[key] }));
   }
 })();
