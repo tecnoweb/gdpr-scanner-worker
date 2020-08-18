@@ -183,7 +183,7 @@ const getData = async (url) => {
   }
   for (cookie of browserData.cookies.cookies) {
     const fields = ['name', 'value', 'domain', 'path', 'expires', 'size', 'httpOnly', 'secure', 'session', 'priority', 'sameSite']
-    for (const field of fiels) {
+    for (const field of fields) {
       if (!(field in cookie)) {
         cookie[field] = '';
       }
