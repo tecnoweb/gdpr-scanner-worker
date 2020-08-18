@@ -118,7 +118,7 @@ const getFlags = (entries) => {
   }
 
   return flags;
-}
+};
 
 const getDnsData = async (flags) => {
 
@@ -149,7 +149,7 @@ const getDnsData = async (flags) => {
   }
 
   return { ips: ips, hostnames: reverses, pings: times };
-}
+};
 
 const getLocationData = async (ips) => {
   const results = await fetch('http://ip-api.com/batch?fields=continentCode,country,org', {
@@ -161,19 +161,16 @@ const getLocationData = async (ips) => {
     body: JSON.stringify(Object.values(ips))
   }).then(res => res.json());
   return Object.keys(ips).reduce((acc, domain, i) => (acc[domain] = results[i], acc), {});
-}
+};
 
 
-(async () => {
-
-
-
-  browserData = await getBrowserData('https://www.nu.nl/', 2000);
+const getData = async (url) => {
+  browserData = await getBrowserData(url, 2000);
   const entries = browserData.har.log.entries.filter(e => e.request.url);
   const flags = getFlags(entries);
   const dnsData = await getDnsData(flags);
   const locations = await getLocationData(dnsData.ips);
-  console.log("DOMAINS")
+  const data = { domains: [], cookies: [], sessionStorage: [], localStorage: [] }
   for (domain of Object.keys(flags)) {
     const result = { domain: domain }
     result.flag = Object.keys(flags[domain]);
@@ -182,14 +179,52 @@ const getLocationData = async (ips) => {
     result.contintent = locations[domain].continentCode == 'EU' ? 'EU' : '';
     result.country = locations[domain].country;
     result.organization = locations[domain].org;
-    console.log(JSON.stringify(result));
+    data.domains.push(result);
   }
-  console.log("COOKIES")
   for (cookie of browserData.cookies.cookies) {
-    console.log(JSON.stringify(Object.keys(cookie)));
+    data.cookies.push(cookie);
   }
-  console.log("LOCAL STORAGE")
+  for (key of Object.keys(browserData.sessionStorage)) {
+    data.sessionStorage.push({ key: key, value: browserData.sessionStorage[key] });
+  }
   for (key of Object.keys(browserData.localStorage)) {
-    console.log(JSON.stringify({ key: key, value: browserData.localStorage[key] }));
+    data.localStorage.push({ key: key, value: browserData.localStorage[key] });
   }
-})();
+  return data;
+};
+
+(async () => {
+  if (process.argv.length > 2) {
+    const arg = process.argv[2];
+    const url = arg.startsWith('http') ? arg : 'https://' + arg;
+    const data = await getData(url);
+    for (key of Object.keys(data)) {
+      console.log('==' + key + '==');
+      for (record of data[key]) {
+        console.log(JSON.stringify(record));
+      }
+    }
+  } else {
+    while (true) {
+      await new Promise(r => setTimeout(r, 1000));
+      const str = await fetch('https://tqdev.com/gdpr-scanner/get.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: qs.stringify({ password: process.env.PASSWORD })
+      }).then(res => res.text())
+      if (str == '') continue;
+      const response = JSON.parse(str);
+      console.log(response.url);
+      response.data = await getData(response.url);
+      await fetch('https://tqdev.com/gdpr-scanner/put.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: qs.stringify({ password: process.env.PASSWORD, response: JSON.stringify(response) })
+      })
+    }
+  }
+})()
