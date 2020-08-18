@@ -227,7 +227,8 @@ const getData = async (url) => {
       console.log(response.url);
       try {
         response.data = await getData(response.url);
-      } catch {
+      } catch (err) {
+        console.error(err);
         continue;
       }
       await fetch('https://tqdev.com/gdpr-scanner/put.php', {
