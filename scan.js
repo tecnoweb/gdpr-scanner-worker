@@ -92,16 +92,18 @@ const getFlags = (entries) => {
   noSslDomains.forEach(domain => flags[domain]['no_ssl'] = true);
 
   // google analytics ga_aip flag
-  const gaDomain = '.google-analytics.com';
-  const gaEntries = entries.filter(e => {
-    const u = new URL(e.request.url);
-    return (u.host.endsWith(gaDomain)) && (u.pathname.endsWith('/collect') || u.pathname.endsWith('/__utm.gif'));
-  });
-  for (e of gaEntries) {
-    const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
-    const post = e.request.postData ? qs.parse(e.request.postData.text) : {};
-    const aip = 'aip' in get || 'aip' in post;
-    flags[gaDomain][aip ? 'ga_aip' : 'ga_no_aip'] = true;
+  const gaDomains = ['www.google-analytics.com', 'ssl.google-analytics.com'];
+  for (gaDomain of gaDomains) {
+    const gaEntries = entries.filter(e => {
+      const u = new URL(e.request.url);
+      return (u.host.endsWith(gaDomain)) && (u.pathname.endsWith('/collect') || u.pathname.endsWith('/__utm.gif'));
+    });
+    for (e of gaEntries) {
+      const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
+      const post = e.request.postData ? qs.parse(e.request.postData.text) : {};
+      const aip = 'aip' in get || 'aip' in post;
+      flags[gaDomain][aip ? 'ga_aip' : 'ga_no_aip'] = true;
+    }
   }
 
   // set domain flags
