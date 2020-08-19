@@ -95,7 +95,7 @@ const getFlags = (entries) => {
   const gaDomain = '.google-analytics.com';
   const gaEntries = entries.filter(e => {
     const u = new URL(e.request.url);
-    return (u.host.endsWith(gaDomain)) && (u.pathname.startsWith('/collect') || u.pathname.startsWith('/__utm.gif'));
+    return (u.host.endsWith(gaDomain)) && (u.pathname.endsWith('/collect') || u.pathname.endsWith('/__utm.gif'));
   });
   for (e of gaEntries) {
     const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
