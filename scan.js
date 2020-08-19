@@ -92,10 +92,10 @@ const getFlags = (entries) => {
   noSslDomains.forEach(domain => flags[domain]['no_ssl'] = true);
 
   // google analytics ga_aip flag
-  const gaDomain = 'www.google-analytics.com';
+  const gaDomain = '.google-analytics.com';
   const gaEntries = entries.filter(e => {
     const u = new URL(e.request.url);
-    return (u.host == gaDomain) && (u.pathname.indexOf('/collect') != -1);
+    return (u.host.endsWith(gaDomain)) && (u.pathname.startsWith('/collect') || u.pathname.startsWith('/__utm.gif'));
   });
   for (e of gaEntries) {
     const get = e.request.queryString.reduce((get, pair) => { get[pair.name] = pair.value; return get; }, {});
