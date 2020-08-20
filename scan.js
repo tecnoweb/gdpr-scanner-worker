@@ -106,8 +106,11 @@ const getFlags = (entries) => {
 
   // set domain flags
   const domainFlags = {
+    'fonts.gstatic.com': 'g_fonts',
     'fonts.googleapis.com': 'g_fonts',
     'stats.g.doubleclick.net': 'g_dc_ads',
+    'googleads.g.doubleclick.net ': 'g_dc_ads',
+    'px.ads.linkedin.com': 'li_ads',
     'connect.facebook.net': 'fb_connect',
     'ping.chartbeat.net': 'chartbeat',
     'bam.nr-data.net': 'nr_in_us'
