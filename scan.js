@@ -219,29 +219,29 @@ const getData = async (url) => {
   } else {
     while (true) {
       await new Promise(r => setTimeout(r, 1000));
-      const str = await fetch('https://tqdev.com/gdpr-scanner/get.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: qs.stringify({ password: process.env.PASSWORD })
-      }).then(res => res.text())
-      if (str == '') continue;
-      const response = JSON.parse(str);
-      console.log(response.url);
       try {
+        const str = await fetch('https://tqdev.com/gdpr-scanner/get.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: qs.stringify({ password: process.env.PASSWORD })
+        }).then(res => res.text())
+        if (str == '') continue;
+        const response = JSON.parse(str);
+        console.log(response.url);
         response.data = await getData(response.url);
+        await fetch('https://tqdev.com/gdpr-scanner/put.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: qs.stringify({ password: process.env.PASSWORD, response: JSON.stringify(response) })
+        })
       } catch (err) {
         console.error(err);
         continue;
       }
-      await fetch('https://tqdev.com/gdpr-scanner/put.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: qs.stringify({ password: process.env.PASSWORD, response: JSON.stringify(response) })
-      })
     }
   }
 })()
