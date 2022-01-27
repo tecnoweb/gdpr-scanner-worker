@@ -1,0 +1,19 @@
+{
+  "name": "gdpr-scanner-worker-main",
+  "version": "1.0.0",
+  "description": "Scanner RegistroConsensi",
+  "main": "scan.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dns": "^0.2.2",
+    "node-fetch": "^2.6.7",
+    "puppeteer": "^13.1.2",
+    "puppeteer-har": "^1.1.2",
+    "qs": "^6.10.3",
+    "tcp-ping": "^0.1.1"
+  }
+}
