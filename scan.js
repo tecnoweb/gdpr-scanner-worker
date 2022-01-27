@@ -1,4 +1,4 @@
-// npm i puppeteer puppeteer-har tcp-ping qs dns node-fetch
+// npm i puppeteer puppeteer-har tcp-ping qs dns node-fetch@2
 const puppeteer = require('puppeteer');
 const PuppeteerHar = require('puppeteer-har');
 const tcpp = require('tcp-ping');
@@ -220,7 +220,7 @@ const getData = async (url) => {
     while (true) {
       await new Promise(r => setTimeout(r, 1000));
       try {
-        const str = await fetch('https://tqdev.com/gdpr-scanner/get.php', {
+        const str = await fetch('https://api.registroconsensi.it/scan/get.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -231,7 +231,7 @@ const getData = async (url) => {
         const response = JSON.parse(str);
         console.log(response.url);
         response.data = await getData(response.url);
-        await fetch('https://tqdev.com/gdpr-scanner/put.php', {
+        await fetch('https://api.registroconsensi.it/scan/put.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
